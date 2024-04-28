@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Include Font Awesome for icons -->
+    <script type="text/javascript" src="Jsbarcode.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .form-container {
+            width: 45%;
+        }
+
+        .barcode-container {
+            width: 45%;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        svg {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .barcode-heading {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .print-btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: #28a745;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .print-btn:hover {
+            background-color: #218838;
+        }
+
+        @media(max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .form-container,
+            .barcode-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Add Product Details</h1>
+            <label for="txt_input"><b>Product Id</b></label>
+            <input type="text" name="txt_input" id="txt_input" placeholder="Enter product ID">
+            <label for="category"><b>Category</b></label>
+            <select name="category" id="category">
+                <option value="saree">Saree</option>
+                <option value="kurti">Kurtis</option>
+                <option value="Dress">Dress</option>
+                <option value="Shirt">Shirt</option>
+                <option value="Pant">Pant</option>
+                <option value="Innerwear">Innerwear</option>
+            </select>
+            <label for="amt"><b>Amount</b></label>
+            <input type="number" name="amt" id="amt" placeholder="Enter amount in RUPEES">
+            <button id="btn">Generate Barcode</button>
+        </div>
+        <div class="barcode-container">
+            <h2 class="barcode-heading">Generated Barcode</h2>
+            <svg id="barcode"></svg>
+            <button onclick="printBarcode()" class="print-btn"><i class="fas fa-print"></i> Print Barcode</button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        document.getElementById("btn").addEventListener("click", function(){
+            var text = document.getElementById("txt_input").value;
+            var catg = document.getElementById("category").value;
+            var price = document.getElementById("amt").value;
+            var sep = "-";
+            var code = text + sep + catg + sep + price;
+
+            JsBarcode("#barcode", code);
+        });
+
+        function printBarcode() {
+            var barcode = document.getElementById("barcode");
+            var win = window.open("", "Print Barcode", "width=500,height=500");
+            win.document.write("<html><head><title>Print Barcode</title></head><body>");
+            win.document.write(barcode.parentNode.innerHTML); // Change from barcode.outerHTML to barcode.parentNode.innerHTML
+            win.document.write("<script type='text/javascript'>window.onload = function() { window.print(); }</" + "script>");
+            win.document.write("</body></html>");
+            win.document.close();
+        }
+    </script>
+</body>
+</html>

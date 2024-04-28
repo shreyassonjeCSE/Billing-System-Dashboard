@@ -1,0 +1,138 @@
+body {
+  background-color: #f0f9ff;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+a{
+  text-decoration: none;
+}
+.header {
+  background-color: #2980b9;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.right_section{
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+.nav{
+  color: #fff;
+}
+.logo {
+  width: 100px;
+}
+
+.shop-name {
+  font-size: 24px;
+}
+
+.billing-system-title {
+  font-size: 24px;
+}
+
+
+
+.form-container {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="number"],
+.form-container select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+.form-container button {
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.table-container {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.table-container th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.table-container .delete-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.generate-bill-button {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Additional styles for the side-by-side layout */
+.container {
+  display: flex;
+  justify-content:space-evenly;
+  margin: 20px;
+  gap: 50px;
+}
+
+.form-container,
+.table-container {
+  width: 48%; /* Adjust width for side-by-side layout */
+}
