@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styleb.css">
+    <title>Barcode Generator</title>
+    <script type="text/javascript" src="Jsbarcode.js"></script>
+</head>
+<body>
+    <h1>Add Product Details</h1>
+    <label for="#"><b>Product Name</b></label>
+    <input type="text" name="txt_input" id="txt_input">
+    <label for="#"><b>Category : </b></label>
+    <select name="category" id="category">
+        <option value="saree">Saree</option>
+        <option value="kurti">Kurtis</option>
+        <option value="Dress">Dress</option>
+        <option value="Shirt">Shirt</option>
+        <option value="Pant">Pant</option>
+        <option value="Innerwear">Innerwear</option>
+    </select>
+
+    <label for="#" class="common"><b>Amount : </b></label>
+    <input type="number" name="amt" placeholder="In RUPEES" id="amt">
+    <button id="btn">Generate Button</button>
+
+    <br><br>
+    <svg id="barcode"></svg>
+
+    <script type="text/javascript">
+        document.getElementById("btn").addEventListener("click",function(){
+            var text =document.getElementById("txt_input").value;
+            var catg=document.getElementById("category").value;
+            var price=document.getElementById("amt").value;
+            var sep="-";
+            var code= text+sep+catg+sep+price;
+
+            JsBarcode("#barcode",code);
+        })
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Tracker WEB APP</title>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        /* Additional styles for the side-by-side layout */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+
+        .form-container,
+        .table-container {
+            width: 48%; /* Adjust width for side-by-side layout */
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="title">
+            <h1 id="bill_title">Billing System Dashboard</h1>
+        </div>
+        <div class="right_section">
+            <div class="sells_history">
+                <a href="sells.html"><h2 class="nav">Sells</h2></a>
+            </div>
+            <div class="generate_barcode">
+                <a href="barcode_index.html"><h2 class="nav">Generate Barcode</h2></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <button class="new-customer-button" onclick="createNewCustomer();">New Customer</button>
+            <form id="money-form" action="/submit" method="POST">
+                <h2>Add Transaction Details</h2>
+                <label for="#"><b>Customer ID:</b></label>
+                <input type="text" name="customer_id" id="cust_id" readonly>
+                <label for="#"><b>Category:</b></label>
+                <input type="text" name="category" id="category_list" autofocus>
+                <label for="#"><b>Amount:</b></label>
+                <input type="number" name="amount" placeholder="In RUPEES" id="amt" autofocus>
+                <label for="#"><b>Payment Mode:</b></label>
+                <select name="mode" id="mode_list">
+                    <option value="cash">Cash</option>
+                    <option value="upi">UPI</option>
+                    <option value="cre">Credit Card</option>
+                </select>
+                <label for="#"><b>Date:</b></label>
+                <input type="date" name="date" id="dt">
+                <button type="submit" id="add_btn">Add</button>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <h1 class="trans">Transactions List</h1>
+            <table id="data-table">
+                <thead>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Payment Mode</th>
+                    <th>Date</th>
+                    <th>Delete</th>
+                </thead>
+                <tbody id="data-body">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="1">Total</td>
+                        <td colspan="4" id="total" style="text-align:center; font-weight:bold;">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button class="generate-bill-button" onclick="generateBill();">Generate Bill</button>
+        </div>
+    </div>
+
+    
+
+    <script>
+        var barcode = '';
+        var interval;
+
+        document.addEventListener('keydown', function (evt) {
+            if (interval)
+                clearInterval(interval);
+
+            if (evt.code == 'Enter') {
+                evt.preventDefault(); // Prevent form submission
+                if (barcode)
+                    handleBarcode(barcode);
+                barcode = '';
+                return;
+            }
+
+            if (evt.key != 'Shift')
+                barcode += evt.key;
+
+            interval = setInterval(() => barcode = '', 20);
+        });
+
+        function handleBarcode(scanned_barcode) {
+            let catinput = document.querySelector('#category_list');
+            let amtinput = document.querySelector('#amt');
+
+            let lstinput = scanned_barcode.split('-');
+
+            catinput.value = lstinput[1];
+            amtinput.value = lstinput[2];
+        }
+
+        let currentCustomerId = '';
+
+        async function createNewCustomer() {
+            try {
+                const response = await fetch('/new-customer', { method: 'POST' });
+                const data = await response.json();
+                currentCustomerId = data.customerId;
+                document.getElementById('cust_id').value = currentCustomerId;
+                document.getElementById('data-body').innerHTML = ''; // Clear existing data
+                document.getElementById('total').textContent = '0'; // Reset total
+            } catch (error) {
+                console.error('Error creating new customer:', error);
+            }
+        }
+
+        async function fetchDataAndDisplay() {
+            if (!currentCustomerId) return; // Do not fetch if no customer is selected
+            try {
+                const response = await fetch(`/data/${currentCustomerId}`);
+                const data = await response.json();
+                const tableBody = document.getElementById('data-body');
+                let totalAmount = 0;
+                tableBody.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.category}</td>
+                        <td>${item.amount}</td>
+                        <td>${item.mode}</td>
+                        <td>${new Date(item.date).toLocaleDateString()}</td>
+                        <td><button class="delete-button" data-id="${item._id}">Delete</button></td>
+                    `;
+                    tableBody.appendChild(row);
+
+                    totalAmount += item.amount;
+                });
+
+                document.getElementById('total').textContent = totalAmount;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function addEntry(event) {
+            event.preventDefault(); // Prevent form submission
+            if (!currentCustomerId) return alert('Please create a customer first.');
+
+            const category = document.getElementById('category_list').value;
+            const amount = parseInt(document.getElementById('amt').value);
+            const mode = document.getElementById('mode_list').value;
+            const date = document.getElementById('dt').value;
+
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ customer_id: currentCustomerId, category, amount, mode, date })
+                });
+                const data = await response.json();
+                console.log(data.message);
+                fetchDataAndDisplay(); // Refresh table after adding new data
+            } catch (error) {
+                console.error('Error adding entry:', error);
+            }
+        }
+
+        document.addEventListener('click', async function(event) {
+            if (event.target.classList.contains('delete-button')) {
+                const id = event.target.dataset.id; // Get the ID of the entry from the button's dataset
+                const amount = parseInt(event.target.parentElement.previousElementSibling.previousElementSibling.textContent); // Get the amount of the entry to be deleted
+                await deleteEntry(id, amount);
+            }
+        });
+
+        async function deleteEntry(id, amount) {
+            try {
+                const response = await fetch(`/delete/${id}`, { method: 'DELETE' });
+                const data = await response.json();
+                console.log(data.message); // Log success message
+                fetchDataAndDisplay(); // Refresh table after deletion
+            } catch (error) {
+                console.error('Error deleting entry:', error);
+            }
+        }
+
+        document.getElementById('money-form').addEventListener('submit', addEntry);
+
+        async function generateBill() {
+            if (!currentCustomerId) return alert('Please create a customer first.');
+            try {
+                const response = await fetch(`/bill/${currentCustomerId}`);
+                const billData = await response.json();
+                let billContent = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Invoice</title></head><body>';
+                billContent += '<h1>Invoice</h1>';
+                billContent += '<table>';
+                billContent += '<thead><tr><th>Category</th><th>Amount</th><th>Payment Mode</th><th>Date</th></tr></thead>';
+                billContent += '<tbody>';
+                billData.transactions.forEach((transaction, index) => {
+                    billContent += `<tr><td>${transaction.category}</td><td>${transaction.amount}</td><td>${transaction.mode}</td><td>${new Date(transaction.date).toLocaleDateString()}</td></tr>`;
+                });
+                billContent += '</tbody>';
+                billContent += `<tfoot><tr><td colspan="4">Total: ${billData.total}</td></tr><tr><td colspan="4">Payment Type: ${billData.paymentType}</td></tr></tfoot>`;
+                billContent += '</table>';
+                billContent += '<button onclick="window.print()">Print</button>';
+                billContent += '</body></html>';
+
+                // Open the bill in a new tab
+                const billWindow = window.open('', '_blank');
+                billWindow.document.write(billContent);
+            } catch (error) {
+                console.error('Error generating bill:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
